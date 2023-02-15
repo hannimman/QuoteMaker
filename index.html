@@ -1,0 +1,342 @@
+<!--2023.01.30 Hannim-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuoteMaker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        h1,p{
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="100"></canvas>
+    <div>
+        <h1>INPUT</h1>
+        <p id="pblock"><!--<label for="pblock">구분자 선택 👉 </label>-->
+                <input type="radio" id="enter" name="group" value="엔터" checked> <label for="enter">엔터</label>
+                <input type="radio" id="comma" name="group" value="콤마"> <label for="comma">콤마</label>
+                <button>리셋</button>
+                <label id="lblPika"></label>
+        </p>
+        <br><br>
+        <textarea name="taOrigin" id="taOrigin" cols="50" rows="10"></textarea>
+    </div>
+    <br>
+    <div style="float: left;">
+        <h1>OUTPUT</h1>
+        <p id="pCount"></p>
+        <br><br>
+        <textarea name="taNew" id="taNew" cols="70" rows="20"></textarea>
+    </div>
+
+    <div style="float: right;"></div>
+        <h1>CUSTOM</h1>
+        <p id="pblock"><!--<label for="pblock">선택 👉 </label>-->
+            <input type="radio" id="username" name="group2" value="네임" checked> <label for="username">UserName</label>
+            <input type="radio" id="userid" name="group2" value="아이디"> <label for="userid">UserId</label>
+        </p>
+        <br><br>
+        <textarea name="taCus" id="taCus" cols="70" rows="20"></textarea>
+    </div>
+
+</body>
+<script type="text/javascript">
+    let origin = document.querySelector('#taOrigin'); //INPUT textarea
+    let newOutput = document.querySelector('#taNew'); //OUTPUT textarea
+    let newCustom = document.querySelector('#taCus'); //CUSTOM textarea
+    let radios = document.querySelectorAll('input[type=radio][name="group"]'); //구분자 선택 라디오
+    let radios2 = document.querySelectorAll('input[type=radio][name="group2"]'); //선택 라디오
+    let reset = document.querySelector('#pblock > button'); //리셋버튼
+    let outputCount = document.querySelector('#pCount'); //OUTPUT 개수
+    let pikalabel = document.querySelector('#lblPika');
+
+    let test = document.querySelector('#test');
+
+    changePlaceholer(); //플레이스홀더 세팅
+
+    origin.addEventListener('input', function(){
+        changeQuote(origin.value);
+    });
+
+    reset.addEventListener('click', function(){
+        deleteAll();
+    });
+
+    _.map(radios, x => 
+        x.addEventListener('change', function(){
+            changeQuote(origin.value);
+        })
+    );
+
+    _.map(radios2, x => 
+        x.addEventListener('change', function(){
+            customQuery(newOutput.value);
+        })
+    );
+
+    //예제 세팅
+    function changePlaceholer(){
+        if(radios[0].checked){
+            origin.placeholder = '엔터(New line)를 구분자로 값을 분리합니다\r\n\nvalue1\r\nvalue2\r\nvalue3\r\n....\r\n...\r\n..\r\n.';
+        } else{
+            origin.placeholder = '콤마를 구분자로 값을 분리합니다\r\n\n👉 value1, value2, value3...';
+        }
+    }
+
+    //작은 따옴표랑 콤마 붙이기
+    function changeQuote(val){
+        changePlaceholer();
+
+        if(val){
+            let str = _.replace(val, / /g, '');
+            let splitter = ',';
+            if(document.querySelector('#enter').checked){
+                splitter = '\n';
+            } else{
+                str = _.replace(str, /(?:\r\n|\r|\n)/g, '');
+            }
+
+            let split  = _.compact(_.split(str, splitter));
+            let newStr = _.map(split, x => '\'' + x + '\'\n');
+            
+            newOutput.value = _.trimEnd(newStr);//.replace(/\n+$/,''); //마지막 엔터제거
+
+            outputCount.innerText = '💁‍♀️' + beCool(split.length);
+            customQuery(newOutput.value);
+        } else{
+            deleteAll();
+        }
+    }
+
+    //쿼리 만들기
+    function customQuery(val){
+        if(!val)return;
+
+        let username = document.querySelector('#username');
+        let cond = username.checked?'UserName':'UserId';
+        let split = _.split(val, '\n');
+        let rst = _.map(split, (x, y) => (_.eq(y, 0)?'\t':'') + _.replace(x, ',', '') + '\n\t'); //0번째에만 탭을 넣고 시작함
+        let query = 
+`SELECT
+\t*
+FROM HBEdu_Passport.dbo.uIv_Statistics_User AS us WITH(NOLOCK)
+WHERE ${cond} IN (
+${_.trimEnd(rst)}
+)`;
+
+        newCustom.value = query;
+    }
+
+    //입력값 멋있게 반환
+    function beCool(val) {
+        if (val === undefined 
+            || val === null 
+            || val === '') {
+            return val;
+        }
+
+        if (typeof val !== 'string') {
+            val = val.toString();
+        }
+
+        if (val === '10') {
+            return '🔟';
+        }
+
+        return val
+        .replace(/0/g, '0️⃣')
+        .replace(/1/g, '1️⃣')
+        .replace(/2/g, '2️⃣')
+        .replace(/3/g, '3️⃣')
+        .replace(/4/g, '4️⃣')
+        .replace(/5/g, '5️⃣')
+        .replace(/6/g, '6️⃣')
+        .replace(/7/g, '7️⃣')
+        .replace(/8/g, '8️⃣')
+        .replace(/9/g, '9️⃣');
+  }
+
+    //휴지통
+    function deleteAll(){
+            origin.value = '';
+            newOutput.value = '';
+            newCustom.value = '';
+            outputCount.innerText = '';
+    }
+
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    let arrayBuffer;
+    const img = new Image();
+
+    var speed = 1;
+    var timer = 0; //타이머
+    var jumpPoint = 80; //점프할 시간
+    var jumpTimer = 0; //점프중 타이머
+    var jumpSwitch = false; //점프할지말지
+    var IsJumping = false; //점프중인지
+
+    fetch('https://raw.githubusercontent.com/jeanguyomarch/pikalogy/master/images/pika_01.png')
+    .then(response => response.blob())
+    .then(blob => blob.arrayBuffer())
+    .then(arrayBuffer => {
+        const newBlob = new Blob([arrayBuffer], { type: 'image/png' });
+        const url = URL.createObjectURL(newBlob);
+        img.src = url;
+        //console.log(url);
+    })
+    .catch(error => {
+        img.src = 'https://raw.githubusercontent.com/jeanguyomarch/pikalogy/master/images/pika_01.png'; 
+    });
+
+    
+    class Pikachu{
+        constructor(){
+            this.x = 0;
+            this.y = 60;
+            this.width = 30;
+            this.height = 30;
+            this.angle = 0; //회전각
+            this.lucky = false;
+            this.superLucky = false;
+        }
+
+        //그려라
+        draw(){
+            img.onload = () => {
+                ctx.drawImage(img, this.x - this.width, this.y);
+            }
+
+            ctx.drawImage(img, this.x - this.width, this.y);
+            
+        }
+
+        //돌아라
+        rotate(){
+            if(this.superLucky){
+                this.angle++; //빠른회전
+            } else {
+                this.angle+= Math.PI / 18; //느린회전
+            }
+            
+            ctx.save();
+            ctx.translate(this.x - this.width, this.y);
+            ctx.rotate(this.angle);
+            ctx.drawImage(img, -img.width/2, -img.height/2);
+            ctx.restore();   
+        }
+
+        //걸어라
+        foward(val){
+            this.x+=val;
+        }
+
+        //뛰어라
+        jumpUp(val){
+            this.y-=val;
+        }
+
+        //내려와라
+        jumpDown(val){
+            this.y+=val;
+        }
+
+        //점프할 결심
+        jumpingMind(){
+            if(!IsJumping){
+                jumpSwitch = true;
+                jumpPoint = _.random(80, 500);
+                speed = _.random(1, 4);
+                this.lucky = _.random(1,10) % 2 == 0;
+                this.superLucky = _.random(1, 1000) % 10 == 0;
+                pikalabel.innerText = '⚡'; //백만볼트
+                //console.log('⚡');
+            }
+        }
+    }
+
+    canvas.addEventListener('click', function(e){
+        const x = e.offsetX;
+        const y = e.offsetY;
+        const pixel = ctx.getImageData(x, y, 1, 1);
+        //console.log(pixel.data[3]);
+        if(pixel.data[3] != 0){
+            //console.log('image');
+            pika.jumpingMind();
+        }
+    });
+    
+    const randomHexColor = () => {
+                    const red = _.padStart(_.random(0, 255).toString(16), 2, '0');
+                    const green = _.padStart(_.random(0, 255).toString(16), 2, '0');
+                    const blue = _.padStart(_.random(0, 255).toString(16), 2, '0');
+                    return `#${red + green + blue}`;
+    };
+
+    //피카츄 등장
+    var pika = new Pikachu();
+    function animate(){
+        requestAnimationFrame(animate);
+        timer++;
+        
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+
+        if(pika.x > canvas.width){
+            pika = new Pikachu();
+        }
+
+        if(timer % jumpPoint == 0){
+            // console.log('피카피카', timer);
+            pika.jumpingMind();
+        }
+
+        if(jumpSwitch){
+            if(pika.y >= 10){
+                IsJumping = true;
+                pika.jumpUp(3);
+                jumpTimer++;
+                
+                // console.log('점프중',pika.y, jumpTimer);
+            }
+        }
+
+        if(IsJumping && jumpTimer >= 17 ){
+            jumpSwitch = false;
+            // console.log('점프끝', pika.y, jumpSwitch);
+
+            if(pika.y < 60){
+                pika.jumpDown(3);
+            } else{
+                IsJumping = false;
+                jumpTimer = 0;
+                pikalabel.innerText = '';
+            }
+        }
+
+        //앞으로 가기
+        pika.foward(speed);
+
+        //뒤뚱뒤뚱 스텝밟기
+        if(!jumpSwitch && !IsJumping && timer % 10 == 1){
+            if(pika.y <= 60){
+                pika.jumpDown(2);
+            } else{
+                pika.jumpUp(2);
+            }
+        }
+
+        //피카츄 운 좋을 때만 돌면서 점프함
+        if(!IsJumping || !pika.lucky){
+            pika.draw();
+        } else{
+            pika.rotate();
+        }
+    }
+
+    animate();
+</script>
+</html>
