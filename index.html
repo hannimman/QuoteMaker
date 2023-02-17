@@ -64,6 +64,12 @@
 
     reset.addEventListener('click', function(){
         deleteAll();
+
+        if(pikas){
+            //pika.jumpingDecision();
+            //pikas = [new Pikachu()];
+            _.map(pikas, pika => pika.jumpingDecision());
+        }
     });
 
     _.map(radios, x => 
@@ -173,13 +179,8 @@ ${_.trimEnd(rst)}
     let arrayBuffer;
     const img = new Image();
 
-    var speed = 1;
     var timer = 0; //타이머
-    var jumpPoint = 80; //점프할 시간
-    var jumpTimer = 0; //점프중 타이머
-    var jumpSwitch = false; //점프할지말지
-    var IsJumping = false; //점프중인지
-
+    
     fetch('https://raw.githubusercontent.com/jeanguyomarch/pikalogy/master/images/pika_01.png')
     .then(response => response.blob())
     .then(blob => blob.arrayBuffer())
@@ -196,13 +197,22 @@ ${_.trimEnd(rst)}
     
     class Pikachu{
         constructor(){
-            this.x = 0;
-            this.y = 60;
-            this.width = 30;
-            this.height = 30;
+            this.x = 0; //피카츄 x좌표
+            this.y = 60; //피카츄 y좌표
+            this.width = 30; //피카츄 길이
+            this.height = 30; //피카츄 높이
+            this.speed = 1; //속도
             this.angle = 0; //회전각
-            this.lucky = false;
-            this.superLucky = false;
+            this.lucky = false; //돌아이
+            this.superLucky = false; //상돌아이
+
+            this.jumpPoint = 80; //점프할 시간
+            this.jumpTimer = 0; //점프중 타이머
+            this.jumpSwitch = false; //점프할지말지
+            this.IsJumping = false; //점프중인지
+
+            this.hero = false;
+            this.name = '조상님';
         }
 
         //그려라
@@ -211,6 +221,17 @@ ${_.trimEnd(rst)}
                 ctx.drawImage(img, this.x - this.width, this.y);
             }
 
+            ctx.font = 'bold 13px 맑은고딕';
+            
+            if(this.hero){
+                //ctx.fillRect(this.x - this.width, this.y, 30, 30);
+                ctx.fillText('막둥이', this.x - this.width + 5, this.y - 3);
+            } else{
+                if(_.size(this.name) > 0) {
+                    ctx.fillText(this.name, this.x - this.width, this.y - 3);
+                }
+            }
+            
             ctx.drawImage(img, this.x - this.width, this.y);
             
         }
@@ -228,11 +249,20 @@ ${_.trimEnd(rst)}
             ctx.rotate(this.angle);
             ctx.drawImage(img, -img.width/2, -img.height/2);
             ctx.restore();   
+
+            ctx.font = 'bold 13px 맑은고딕';
+            if(this.hero){
+                ctx.fillText('막둥이', this.x - this.width, this.y-20);
+            } else{
+                if(_.size(this.name) > 0) {
+                    ctx.fillText(this.name, this.x - this.width, this.y-20);
+                }
+            }
         }
 
         //걸어라
-        foward(val){
-            this.x+=val;
+        forward(){
+            this.x+=this.speed;
         }
 
         //뛰어라
@@ -246,29 +276,31 @@ ${_.trimEnd(rst)}
         }
 
         //점프할 결심
-        jumpingMind(){
-            if(!IsJumping){
-                jumpSwitch = true;
-                jumpPoint = _.random(80, 500);
-                speed = _.random(1, 4);
+        jumpingDecision(){
+            if(!this.IsJumping){
+                this.jumpSwitch = true;
+                this.jumpPoint = _.random(80, 500);
+                this.speed = _.random(1, 4);
                 this.lucky = _.random(1,10) % 2 == 0;
                 this.superLucky = _.random(1, 1000) % 10 == 0;
+
                 pikalabel.innerText = '⚡'; //백만볼트
                 //console.log('⚡');
             }
         }
     }
 
-    canvas.addEventListener('click', function(e){
-        const x = e.offsetX;
-        const y = e.offsetY;
-        const pixel = ctx.getImageData(x, y, 1, 1);
-        //console.log(pixel.data[3]);
-        if(pixel.data[3] != 0){
-            //console.log('image');
-            pika.jumpingMind();
-        }
-    });
+    //피카츄 클릭
+    // canvas.addEventListener('click', function(e){
+    //     const x = e.offsetX;
+    //     const y = e.offsetY;
+    //     const pixel = ctx.getImageData(x, y, 1, 1);
+    //     //console.log(pixel.data[3]);
+    //     if(pixel.data[3] != 0){
+    //         //console.log('image');
+    //         pika.jumpingDecision();
+    //     }
+    // });
     
     const randomHexColor = () => {
                     const red = _.padStart(_.random(0, 255).toString(16), 2, '0');
@@ -278,63 +310,77 @@ ${_.trimEnd(rst)}
     };
 
     //피카츄 등장
-    var pika = new Pikachu();
+    var pikas = [new Pikachu()]; //new Pikachu();
+
+    //피카츄 출동
     function animate(){
         requestAnimationFrame(animate);
         timer++;
         
         ctx.clearRect(0,0, canvas.width, canvas.height);
 
-        if(pika.x > canvas.width){
-            pika = new Pikachu();
+        if(_.findLast(pikas).superLucky) {
+            let newPika = new Pikachu();
+            newPika.hero = true;
+            pikas[_.size(pikas) - 1].hero = false;
+            newPika.name = '';
+            pikas = _.concat(pikas, newPika);
         }
+        _.map(pikas, (pika, idx) => {
 
-        if(timer % jumpPoint == 0){
-            // console.log('피카피카', timer);
-            pika.jumpingMind();
-        }
-
-        if(jumpSwitch){
-            if(pika.y >= 10){
-                IsJumping = true;
-                pika.jumpUp(3);
-                jumpTimer++;
-                
-                // console.log('점프중',pika.y, jumpTimer);
+        
+            if(pika.x > canvas.width){
+                pikas[idx].x = 0 - pika.width;
             }
-        }
 
-        if(IsJumping && jumpTimer >= 17 ){
-            jumpSwitch = false;
-            // console.log('점프끝', pika.y, jumpSwitch);
+            if(timer % pika.jumpPoint == 0){
+                // console.log('피카피카', timer);
+                pika.jumpingDecision();
+            }
 
-            if(pika.y < 60){
-                pika.jumpDown(3);
+            if(pika.jumpSwitch){
+                if(pika.y >= 10){
+                    pika.IsJumping = true;
+                    pika.jumpUp(3);
+                    pika.jumpTimer++;
+                    
+                    // console.log('점프중',pika.y, jumpTimer);
+                }
+            }
+
+            if(pika.IsJumping && pika.jumpTimer >= 17 ){
+                pika.jumpSwitch = false;
+                // console.log('점프끝', pika.y, jumpSwitch);
+
+                if(pika.y < 60){
+                    pika.jumpDown(3);
+                } else{
+                    pika.IsJumping = false;
+                    pika.jumpTimer = 0;
+                    pikalabel.innerText = '';
+                }
+            }
+
+            //앞으로 가기
+            pika.forward();
+
+            //뒤뚱뒤뚱 스텝밟기
+            if(!pika.jumpSwitch && !pika.IsJumping && timer % 10 == 1){
+                if(pika.y <= 60){
+                    pika.jumpDown(2);
+                } else{
+                    pika.jumpUp(2);
+                }
+            }
+
+            //피카츄 운 좋을 때만 돌면서 점프함
+            if(!pika.IsJumping || !pika.lucky){
+                pika.draw();
             } else{
-                IsJumping = false;
-                jumpTimer = 0;
-                pikalabel.innerText = '';
+                pika.rotate();
             }
-        }
 
-        //앞으로 가기
-        pika.foward(speed);
-
-        //뒤뚱뒤뚱 스텝밟기
-        if(!jumpSwitch && !IsJumping && timer % 10 == 1){
-            if(pika.y <= 60){
-                pika.jumpDown(2);
-            } else{
-                pika.jumpUp(2);
-            }
-        }
-
-        //피카츄 운 좋을 때만 돌면서 점프함
-        if(!IsJumping || !pika.lucky){
-            pika.draw();
-        } else{
-            pika.rotate();
-        }
+        });
     }
 
     animate();
