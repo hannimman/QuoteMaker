@@ -4,46 +4,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="QuoteMaker">
-    <meta property="og:description" content="따옴표를 찍기가 귀찮아">
-    <meta property="og:image" content="https://raw.githubusercontent.com/jeanguyomarch/pikalogy/master/images/pika_01.png">
     <title>QuoteMaker</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         h1,p{
             display: inline;
         }
+
+        .container{
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .pikaCanva{
+            width: 100%;
+            height: 100%;
+        }
+
+        .item1{
+            width: 100%;
+            height: 100%;
+        }
+
+        .itemContainer{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="500" height="100"></canvas>
-    <div>
-        <h1>INPUT</h1>
-        <p id="pblock"><!--<label for="pblock">구분자 선택 👉 </label>-->
-                <input type="radio" id="enter" name="group" value="엔터" checked> <label for="enter">엔터</label>
-                <input type="radio" id="comma" name="group" value="콤마"> <label for="comma">콤마</label>
-                <button>리셋</button>
-                <label id="lblPika"></label>
-        </p>
-        <br><br>
-        <textarea name="taOrigin" id="taOrigin" cols="50" rows="10"></textarea>
-    </div>
-    <br>
-    <div style="float: left;">
-        <h1>OUTPUT</h1>
-        <p id="pCount"></p>
-        <br><br>
-        <textarea name="taNew" id="taNew" cols="70" rows="20"></textarea>
-    </div>
+    <div class="container">
+        <div class="pikaCanva">
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="item1">
+            <h1>INPUT</h1>
+            <p id="pblock"><!--<label for="pblock">구분자 선택 👉 </label>-->
+                    <input type="radio" id="enter" name="group" value="엔터" checked> <label for="enter">엔터</label>
+                    <input type="radio" id="comma" name="group" value="콤마"> <label for="comma">콤마</label>
+                    <button>리셋</button>
+                    <label id="lblPika"></label>
+            </p>
+            <br><br>
+            <textarea name="taOrigin" id="taOrigin" cols="50" rows="10"></textarea>
+        </div>
 
-    <div style="float: right;"></div>
-        <h1>CUSTOM</h1>
-        <p id="pblock"><!--<label for="pblock">선택 👉 </label>-->
-            <input type="radio" id="username" name="group2" value="네임" checked> <label for="username">UserName</label>
-            <input type="radio" id="userid" name="group2" value="아이디"> <label for="userid">UserId</label>
-        </p>
-        <br><br>
-        <textarea name="taCus" id="taCus" cols="70" rows="20"></textarea>
+        <div class="itemContainer">
+            <div class="item2">
+                <h1>OUTPUT</h1>
+                <p id="pCount"></p>
+                <br><br>
+                <textarea name="taNew" id="taNew" cols="70" rows="20"></textarea>
+            </div>
+        
+            <div class="item3">
+                <h1>CUSTOM</h1>
+                <p id="pblock"><!--<label for="pblock">선택 👉 </label>-->
+                    <input type="radio" id="username" name="group2" value="네임" checked> <label for="username">UserName</label>
+                    <input type="radio" id="userid" name="group2" value="아이디"> <label for="userid">UserId</label>
+                </p>
+                <br><br>
+                <textarea name="taCus" id="taCus" cols="70" rows="20"></textarea>
+            </div>
+        </div>
+        
     </div>
 
 </body>
