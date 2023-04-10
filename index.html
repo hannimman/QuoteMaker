@@ -231,6 +231,19 @@ ${_.trimEnd(rst)}
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     let arrayBuffer;
+    const layer1 = new Image();
+    const layer2 = new Image();
+    layer1.src = 'back.jpg';
+    layer2.src = 'back.jpg';
+
+    ctx.drawImage(layer1, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(layer2, canvas.width, 0, canvas.width, canvas.height);
+
+    let layer1X = 0;
+    let layer2x = canvas.width;
+    const layer1Speed = 1;
+    const layer2Speed = 1;
+
     const img = new Image();
 
     var timer = 0; //타이머
@@ -252,7 +265,7 @@ ${_.trimEnd(rst)}
     class Pikachu{
         constructor(){
             this.x = 0; //피카츄 x좌표
-            this.y = 60; //피카츄 y좌표
+            this.y = 80; //피카츄 y좌표
             this.width = 30; //피카츄 길이
             this.height = 30; //피카츄 높이
             this.speed = 1; //속도
@@ -372,6 +385,20 @@ ${_.trimEnd(rst)}
         timer++;
         
         ctx.clearRect(0,0, canvas.width, canvas.height);
+        
+        layer1X -= layer1Speed;
+        if (layer1X <= -canvas.width) {
+            layer1X = canvas.width;
+        }
+
+        layer2x -= layer2Speed;
+        if (layer2x <= -canvas.width) {
+            layer2x = canvas.width;
+        }
+
+        console.log(layer1X, layer2x);
+        ctx.drawImage(layer1, layer1X, 0, canvas.width, canvas.height);
+        ctx.drawImage(layer2, layer2x, 0, canvas.width, canvas.height);
 
         if(_.findLast(pikas).superLucky) {
             let newPika = new Pikachu();
@@ -406,7 +433,7 @@ ${_.trimEnd(rst)}
                 pika.jumpSwitch = false;
                 // console.log('점프끝', pika.y, jumpSwitch);
 
-                if(pika.y < 60){
+                if(pika.y < 80){
                     pika.jumpDown(3);
                 } else{
                     pika.IsJumping = false;
@@ -420,7 +447,7 @@ ${_.trimEnd(rst)}
 
             //뒤뚱뒤뚱 스텝밟기
             if(!pika.jumpSwitch && !pika.IsJumping && timer % 10 == 1){
-                if(pika.y <= 60){
+                if(pika.y <= 80){
                     pika.jumpDown(2);
                 } else{
                     pika.jumpUp(2);
