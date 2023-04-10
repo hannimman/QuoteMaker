@@ -59,6 +59,14 @@
             <div class="item2">
                 <h1>OUTPUT</h1>
                 <p id="pCount"></p>
+                <label>
+                    <input type="radio" id="singleQuote" name="quoteGroup" checked />
+                    Single Quotes
+                </label>
+                <label>
+                    <input type="radio" id="doubleQuote" name="quoteGroup" />
+                    Double Quotes
+                </label>
                 <br><br>
                 <textarea name="taNew" id="taNew" cols="70" rows="20"></textarea>
             </div>
@@ -78,11 +86,13 @@
 
 </body>
 <script type="text/javascript">
+    let quoteType = '\'';
     let origin = document.querySelector('#taOrigin'); //INPUT textarea
     let newOutput = document.querySelector('#taNew'); //OUTPUT textarea
     let newCustom = document.querySelector('#taCus'); //CUSTOM textarea
     let radios = document.querySelectorAll('input[type=radio][name="group"]'); //구분자 선택 라디오
     let radios2 = document.querySelectorAll('input[type=radio][name="group2"]'); //선택 라디오
+    let radios3 = document.querySelectorAll('input[type=radio][name="quoteGroup"]'); //따옴표 종류 선택 라디오
     let reset = document.querySelector('#pblock > button'); //리셋버튼
     let outputCount = document.querySelector('#pCount'); //OUTPUT 개수
     let pikalabel = document.querySelector('#lblPika');
@@ -117,6 +127,17 @@
         })
     );
 
+    _.map(radios3, x => 
+        x.addEventListener('change', function(){
+            if(radios3[0].checked){
+                quoteType = '\'';
+            } else {
+                quoteType = '\"';
+            }
+            changeQuote(origin.value);
+        })
+    );
+
     //예제 세팅
     function changePlaceholer(){
         if(radios[0].checked){
@@ -140,7 +161,7 @@
             }
 
             let split  = _.compact(_.split(str, splitter));
-            let newStr = _.map(split, x => '\'' + x + '\'\n');
+            let newStr = _.map(split, x => quoteType + x + quoteType+'\n');
             
             newOutput.value = _.trimEnd(newStr);//.replace(/\n+$/,''); //마지막 엔터제거
 
