@@ -7,6 +7,11 @@
     <title>INSERT 마법사</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
+        body {
+            background-color: #333;
+            color: #ddd;
+            font-family: Arial, sans-serif;
+        }
         .container {
             margin: 20px;
         }
@@ -22,10 +27,18 @@
         textarea {
             width: 100%;
             resize: vertical;
+            background-color: #444;
+            color: #ddd;
+            border: 1px solid #666;
+            padding: 5px;
         }
         input[type="text"] {
             width: 100%;
             margin-bottom: 10px;
+            background-color: #444;
+            color: #ddd;
+            border: 1px solid #666;
+            padding: 5px;
         }
         strong {
             display: block;
@@ -39,6 +52,14 @@
         }
         .button-container button {
             margin-right: 10px;
+            background-color: #555;
+            color: #ddd;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        .button-container button:hover {
+            background-color: #777;
         }
     </style>
 </head>
