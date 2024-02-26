@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INSERT 마법사</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        .container {
+            margin: 20px;
+        }
+        .column-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .column-container > div {
+            flex: 1 0 200px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            resize: vertical;
+        }
+        input[type="text"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .button-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .button-container button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🧙‍♂️ INSERT 마법사 🧙‍♂️</h2>
+        <input type="text" id="tableNameInput" style="width: 200px;" placeholder="테이블명을 넣으세요...">
+        <div class="button-container">
+            <button onclick="generateInsert()">컬럼생성</button>
+            <button onclick="generateQuery()">쿼리생성</button>
+            <button onclick="resetForm()">Reset</button>
+        </div>
+        <p>컬럼을 복붙하세요:</p>
+        <textarea id="columnsTextarea" style="width: 300px;" placeholder="컬럼명은 엔터로 구분..."></textarea>
+        <div id="valuesContainer" class="column-container"></div>
+        <div id="queryContainer"></div>
+    </div>
+
+    <script>
+        const generateInsert = () => {
+            const columnsTextarea = document.getElementById('columnsTextarea');
+            const columns = _.compact(_.map(columnsTextarea.value.split('\n'), _.trim));
+
+            const valuesContainer = document.getElementById('valuesContainer');
+            valuesContainer.innerHTML = '';
+
+            _.forEach(columns, column => {
+                const columnDiv = document.createElement('div');
+
+                const columnLabel = document.createElement('strong');
+                columnLabel.textContent = column;
+                columnDiv.appendChild(columnLabel);
+
+                const inputField = document.createElement('textarea');
+                inputField.setAttribute('placeholder', `Enter values for ${column}`);
+                columnDiv.appendChild(inputField);
+
+                const numberCheckbox = document.createElement('input');
+                numberCheckbox.setAttribute('type', 'checkbox');
+                numberCheckbox.setAttribute('id', `${column}_number`);
+                const label = document.createElement('label');
+                label.setAttribute('for', `${column}_number`);
+                label.textContent = 'Number';
+                columnDiv.appendChild(numberCheckbox);
+                columnDiv.appendChild(label);
+
+                valuesContainer.appendChild(columnDiv);
+            });
+        }
+
+        const generateQuery = () => {
+            const tableName = document.getElementById('tableNameInput').value.trim();
+            const columns = document.querySelectorAll('#valuesContainer strong');
+            const values = document.querySelectorAll('#valuesContainer textarea');
+            const numberCheckboxes = document.querySelectorAll('#valuesContainer input[type="checkbox"]');
+
+            const insertStatements = [];
+
+            for (let i = 0; i < values[0].value.split('\n').length; i++) {
+                const valuesSet = [];
+                let isNull = true;
+                _.forEach(columns, (column, j) => {
+                    const value = values[j].value.split('\n')[i].trim().replace(/\n/g, "','");
+                    if(value.length > 0){
+                        isNull = false;
+                    }
+
+                    if (numberCheckboxes[j].checked && !isNaN(value)) {
+                        valuesSet.push(value);
+                    } else if (!numberCheckboxes[j].checked) {
+                        valuesSet.push(`'${value}'`);
+                    }
+                });
+
+                if (_.some(valuesSet, value => value !== "''") && !isNull) {
+                    const insertStatement = `INTO ${tableName} (${_.map(columns, column => column.textContent.trim()).join(', ')}) VALUES (${valuesSet.join(', ')})`;
+                    insertStatements.push(insertStatement);
+                }
+            }
+
+            let query = "INSERT ALL\n";
+
+            _.forEach(insertStatements, (statement, index) => {
+                query += `   ${statement}`;
+                if (index < insertStatements.length - 1) {
+                    query += '\n';
+                } else {
+                    query += '\nSELECT * FROM DUAL;';
+                }
+            });
+
+            let queryTextArea = document.getElementById('queryContainer').querySelector('textarea');
+
+            if (!queryTextArea) {
+                queryTextArea = document.createElement('textarea');
+                queryTextArea.setAttribute('rows', '15');
+                queryTextArea.style.width = '100%';
+                document.getElementById('queryContainer').appendChild(queryTextArea);
+            }
+
+            queryTextArea.value = query;
+        }
+
+        const resetForm = () => {
+            document.getElementById('tableNameInput').value = '';
+            document.getElementById('columnsTextarea').value = '';
+            document.getElementById('valuesContainer').innerHTML = '';
+            document.getElementById('queryContainer').innerHTML = '';
+        }
+</script>
+
+</body>
+</html>
