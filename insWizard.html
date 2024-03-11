@@ -1,156 +1,107 @@
-<!--2024.02.26 Hannim-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INSERT 마법사</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <style>
-        body {
-            background-color: #333;
-            color: #ddd;
-            font-family: Arial, sans-serif;
+    <script src="/ib/ibleaders.js"></script>
+    <script src="/ib/ibsheetinfo.js"></script>
+    <script src="/ib/ibsheet.js"></script>
+    <script src="/ib/ibsheet-global.js"></script>
+    <script language="javascript">
+        var myIBSheetMain;
+        function LoadPage(){
+            
         }
-        .container {
-            margin: 20px;
-        }
-        .column-container {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .column-container > div {
-            flex: 1 0 200px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        textarea {
-            width: 100%;
-            resize: vertical;
-            background-color: #444;
-            color: #ddd;
-            border: 1px solid #666;
-            padding: 5px;
-        }
-        input[type="text"] {
-            width: 100%;
-            margin-bottom: 10px;
-            background-color: #444;
-            color: #ddd;
-            border: 1px solid #666;
-            padding: 5px;
-        }
-        strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .button-container {
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-        }
-        .button-container button {
-            margin-right: 10px;
-            background-color: #555;
-            color: #ddd;
-            border: none;
-            padding: 8px 15px;
-            cursor: pointer;
-        }
-        .button-container button:hover {
-            background-color: #777;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>🧙‍♂️ INSERT 마법사 🧙‍♂️</h2>
-        <input type="text" id="tableNameInput" style="width: 200px;" placeholder="테이블명을 넣으세요...">
-        <div class="button-container">
-            <button onclick="generateInsert()">컬럼생성</button>
-            <button onclick="generateQuery()">쿼리생성</button>
-            <button onclick="resetForm()">Reset</button>
-        </div>
-        <p>컬럼을 복붙하세요:</p>
-        <textarea id="columnsTextarea" style="width: 300px;" placeholder="컬럼명은 엔터로 구분..."></textarea>
-        <div id="valuesContainer" class="column-container"></div>
-        <div id="queryContainer"></div>
-    </div>
 
-    <script>
         const generateInsert = () => {
             const columnsTextarea = document.getElementById('columnsTextarea');
-            const columns = _.compact(_.map(columnsTextarea.value.split('\n'), _.trim));
+            let columns;
+            if(columnsTextarea.value.length > 0){
+                const selectedRadio = document.querySelector('input[type="radio"][name="spliter"]:checked');
 
-            const valuesContainer = document.getElementById('valuesContainer');
-            valuesContainer.innerHTML = '';
+                switch (selectedRadio.value){
+                    case 'excel':
+                        columns = _.compact(_.map(columnsTextarea.value.split('\t'), _.trim));
+                        break;
+                    case 'enter':
+                    columns = _.compact(_.map(columnsTextarea.value.split('\n'), _.trim));
+                        break;
+                    case 'comma':
+                    columns = _.compact(_.map(columnsTextarea.value.split(','), _.trim));
+                        break;
+                }
 
-            _.forEach(columns, column => {
-                const columnDiv = document.createElement('div');
+                if(_.isUndefined(myIBSheetMain)){
+                    createIBSheet2(document.getElementById("sheetObj"), "mySheet", "750px", "400px");
+                    myIBSheetMain = mySheet;
+                } else{
+                    myIBSheetMain.Reset();
+                    createIBSheet2(document.getElementById("sheetObj"), "mySheet", "750px", "400px");
+                    myIBSheetMain = mySheet;
+                }
+                
+                var initdata = {};
+                initdata.HeaderMode = {Sort:0,ColMove:0,ColResize:1};
+                
+                initdata.Cols = _.map(columns, (column) => ({
+                    Header: column,
+                    Type:"Text",
+                    Width:"80",
+                    SaveName:column,
+                    Align:"Center",
+                }));
 
-                const columnLabel = document.createElement('strong');
-                columnLabel.textContent = column;
-                columnDiv.appendChild(columnLabel);
+                //초기화
+                IBS_InitSheet(myIBSheetMain, initdata);
 
-                const inputField = document.createElement('textarea');
-                inputField.setAttribute('placeholder', `엔터로 구분`);
-                columnDiv.appendChild(inputField);
-
-                const numberCheckbox = document.createElement('input');
-                numberCheckbox.setAttribute('type', 'checkbox');
-                numberCheckbox.setAttribute('id', `${column}_number`);
-                const label = document.createElement('label');
-                label.setAttribute('for', `${column}_number`);
-                label.textContent = 'Number';
-                columnDiv.appendChild(numberCheckbox);
-                columnDiv.appendChild(label);
-
-                valuesContainer.appendChild(columnDiv);
-            });
+                myIBSheetMain.SetClipPasteMode(2);
+                myIBSheetMain.DataInsert(-1);
+                //myIBSheetMain.SetTheme("YL", "Yellow");
+            }
         }
 
-        const generateQuery = () => {
-            const tableName = document.getElementById('tableNameInput').value.trim();
-            const columns = document.querySelectorAll('#valuesContainer strong');
-            const values = document.querySelectorAll('#valuesContainer textarea');
-            const numberCheckboxes = document.querySelectorAll('#valuesContainer input[type="checkbox"]');
-
-            const insertStatements = [];
-
-            for (let i = 0; i < values[0].value.split('\n').length; i++) {
-                const valuesSet = [];
-                let isNull = true;
-                _.forEach(columns, (column, j) => {
-                    const value = values[j].value.split('\n')[i].trim().replace(/\n/g, "','");
-                    if(value.length > 0){
-                        isNull = false;
-                    }
-
-                    if (numberCheckboxes[j].checked && !isNaN(value)) {
-                        valuesSet.push(value);
-                    } else if (!numberCheckboxes[j].checked) {
-                        valuesSet.push(`'${value}'`);
-                    }
-                });
-
-                if (_.some(valuesSet, value => value !== "''") && !isNull) {
-                    const insertStatement = `INTO ${tableName} (${_.map(columns, column => column.textContent.trim()).join(', ')}) VALUES (${valuesSet.join(', ')})`;
-                    insertStatements.push(insertStatement);
-                }
+        const resetColumn = () => {
+            if(!_.isUndefined(myIBSheetMain)){
+                myIBSheetMain.Reset();
+                document.getElementById('tableNameInput').value = '';
+                document.getElementById('columnsTextarea').value = '';
+                document.getElementById('queryContainer').innerHTML = '';
             }
 
-            let query = "INSERT ALL\n";
+            const columnsTextarea = document.getElementById('columnsTextarea').value = '';
+        }
+        
+        const test = () => {
+            myIBSheetMain.DataInsert(-1);
+        }
 
-            _.forEach(insertStatements, (statement, index) => {
-                query += `   ${statement}`;
-                if (index < insertStatements.length - 1) {
-                    query += '\n';
-                } else {
-                    query += '\nSELECT * FROM DUAL;';
-                }
+        const test2 = () => {
+            const tableName = document.getElementById('tableNameInput').value.trim();
+            const jsonData = myIBSheetMain.ExportData({
+                "Type": "json"
             });
 
+            console.log(jsonData);
+
+            let insertStatements = "INSERT ALL\n";
+
+            // INSERT 문 생성 함수
+
+            _.forEach(jsonData.data, data => {
+                const columns = _.keys(data);
+                const values = _.values(data);
+
+                const columnNames = columns.join(', ');
+                const columnValues = values.map(value => value ? `'${value}'` : 'NULL').join(', ');
+
+                insertStatements += `\tINTO ${tableName} (${columnNames}) VALUES (${columnValues})\n`;
+            });
+
+            insertStatements += "SELECT * FROM DUAL;";
+
+            console.log(insertStatements);
+            
             let queryTextArea = document.getElementById('queryContainer').querySelector('textarea');
 
             if (!queryTextArea) {
@@ -160,16 +111,31 @@
                 document.getElementById('queryContainer').appendChild(queryTextArea);
             }
 
-            queryTextArea.value = query;
+            queryTextArea.value = insertStatements;
         }
 
-        const resetForm = () => {
-            document.getElementById('tableNameInput').value = '';
-            document.getElementById('columnsTextarea').value = '';
-            document.getElementById('valuesContainer').innerHTML = '';
-            document.getElementById('queryContainer').innerHTML = '';
-        }
-</script>
-
+        //const insertStatements = generateInsert(tableName, jsonData);
+    </script>    
+    <title>🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️🧙‍♂️</title>
+</head>
+<body onload="LoadPage()">
+    <div class="container">
+        <h2>🧙‍♂️ INSERT 마법사 🧙‍♂️</h2>
+        <input type="text" id="tableNameInput" style="width: 200px;" placeholder="테이블명을 넣으세요...">
+        <p>컬럼을 복붙하세요:</p>
+        <p id="rdoBlock">
+            <input type="radio" id="rdoExcel" name="spliter" value="excel" checked><label for="excel">엑셀</label>
+            <input type="radio" id="rdoEnter" name="spliter" value="enter"><label for="enter">엔터</label>
+            <input type="radio" id="rdoComma" name="spliter" value="comma"><label for="comma">콤마</label>
+        </p>
+        <textarea id="columnsTextarea" style="width: 300px;" placeholder="컬럼복붙"></textarea>
+        <p>
+            <button onclick="generateInsert()">컬럼생성</button>
+            <button onclick="resetColumn()">리셋</button>
+            <button onclick="test2()">쿼리생성</button>
+        </p>
+        <div id="queryContainer"></div>
+        <div id="sheetObj"></div>
+    </div>
 </body>
 </html>
