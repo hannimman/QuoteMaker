@@ -188,7 +188,7 @@
 // ${_.trimEnd(rst)}
 // )`;
 
-        newCustom.value = username.checked? rst.toUpperCase() : rst.toLowerCase();
+        newCustom.value = username.checked? _.trimEnd(rst).toUpperCase() : _.trimEnd(rst).toLowerCase();
     }
 
     //입력값 멋있게 반환
@@ -396,7 +396,7 @@
             layer2x = canvas.width;
         }
 
-        console.log(layer1X, layer2x);
+        // console.log(layer1X, layer2x);
         ctx.drawImage(layer1, layer1X, 0, canvas.width, canvas.height);
         ctx.drawImage(layer2, layer2x, 0, canvas.width, canvas.height);
 
