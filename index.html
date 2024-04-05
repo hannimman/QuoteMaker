@@ -74,8 +74,8 @@
             <div class="item3">
                 <h1>CUSTOM</h1>
                 <p id="pblock"><!--<label for="pblock">선택 👉 </label>-->
-                    <input type="radio" id="username" name="group2" value="네임" checked> <label for="username">UserName</label>
-                    <input type="radio" id="userid" name="group2" value="아이디"> <label for="userid">UserId</label>
+                    <input type="radio" id="username" name="group2" value="대문자" checked> <label for="username">Upper case</label>
+                    <input type="radio" id="userid" name="group2" value="소문자"> <label for="userid">Lower case</label>
                 </p>
                 <br><br>
                 <textarea name="taCus" id="taCus" cols="70" rows="20"></textarea>
@@ -180,15 +180,15 @@
         let cond = username.checked?'UserName':'UserId';
         let split = _.split(val, '\n');
         let rst = _.map(split, (x, y) => (_.eq(y, 0)?'\t':'') + _.replace(x, ',', '') + '\n\t'); //0번째에만 탭을 넣고 시작함
-        let query = 
-`SELECT
-\t*
-FROM HBEdu_Passport.dbo.uIv_Statistics_User AS us WITH(NOLOCK)
-WHERE ${cond} IN (
-${_.trimEnd(rst)}
-)`;
+//         let query = 
+// `SELECT
+// \t*
+// FROM HBEdu_Passport.dbo.uIv_Statistics_User AS us WITH(NOLOCK)
+// WHERE ${cond} IN (
+// ${_.trimEnd(rst)}
+// )`;
 
-        newCustom.value = query;
+        newCustom.value = username.checked? rst.toUpperCase() : rst.toLowerCase();
     }
 
     //입력값 멋있게 반환
