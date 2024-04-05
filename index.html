@@ -179,7 +179,7 @@
         let username = document.querySelector('#username');
         let cond = username.checked?'UserName':'UserId';
         let split = _.split(val, '\n');
-        let rst = _.map(split, (x, y) => (_.eq(y, 0)?'\t':'') + _.replace(x, ',', '') + '\n\t'); //0번째에만 탭을 넣고 시작함
+        let rst = _.map(split, (x, y) => (_.eq(y, 0)?'':'') + _.replace(x, ',', '') + '\n'); //0번째에만 탭을 넣고 시작함
 //         let query = 
 // `SELECT
 // \t*
