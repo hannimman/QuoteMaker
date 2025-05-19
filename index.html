@@ -284,6 +284,9 @@
 
         newCustom.value = username.checked? _.trimEnd(rst).toUpperCase() : _.trimEnd(rst).toLowerCase();
 
+        if(!commaType){
+            newCustom.value = newCustom.value.replace(/,/g, '');
+        }        
         // newCustom.scrollTop = newCustom.scrollHeight; 
     }
 
