@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuoteMaker</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         h1,p{
             display: inline;
@@ -15,7 +16,10 @@
             width: 100vw;
             height: 100vh;
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-rows: auto 1fr auto; /* pikaCanva, item1, itemContainer 수직 정렬 */
+            gap: 1rem; /* 섹션 간 간격 */
+            padding: 1rem; /* 전체 컨테이너 패딩 */
+            box-sizing: border-box;
         }
 
         .pikaCanva{
@@ -25,15 +29,54 @@
 
         .item1{
             width: 100%;
-            height: 100%;
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .itemContainer{
             width: 100%;
-            height: 100%;
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .item2, .item3 {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .textarea-wrapper {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .textarea-wrapper textarea {
+            flex-grow: 1;
+            width: 100%;
+        }
+        
+        button {
+            cursor: pointer;
+        }
+
+        .controls label { 
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0.75rem;
+        }
+        .controls input[type="radio"], .controls input[type="checkbox"] {
+            margin-right: 0.25rem;
         }
 
     </style>
@@ -44,41 +87,61 @@
             <canvas id="canvas"></canvas>
         </div>
         <div class="item1">
-            <h1>INPUT</h1>
+            <h1 class="text-xl font-semibold text-gray-700">INPUT</h1>
             <p id="pblock"><!--<label for="pblock">구분자 선택 👉 </label>-->
                     <input type="radio" id="enter" name="group" value="엔터" checked> <label for="enter">엔터</label>
                     <input type="radio" id="comma" name="group" value="콤마"> <label for="comma">콤마</label>
-                    <button>리셋</button>
+                    <button id="resetButton" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors">리셋</button>
                     <label id="lblPika"></label>
             </p>
             <br><br>
-            <textarea name="taOrigin" id="taOrigin" cols="50" rows="10"></textarea>
+            <textarea name="taOrigin" id="taOrigin" cols="50" rows="9"></textarea>
         </div>
 
         <div class="itemContainer">
             <div class="item2">
-                <h1>OUTPUT</h1>
-                <p id="pCount"></p>
-                <label>
-                    <input type="radio" id="singleQuote" name="quoteGroup" checked />
-                    Single Quotes
-                </label>
-                <label>
-                    <input type="radio" id="doubleQuote" name="quoteGroup" />
-                    Double Quotes
-                </label>
-                <br><br>
-                <textarea name="taNew" id="taNew" cols="70" rows="20"></textarea>
+                <h2 class="text-xl font-semibold text-gray-700 mb-2 flex items-baseline">
+                    OUTPUT
+                    <span id="pCount" class="text-sm text-purple-600 font-semibold ml-2"></span>
+                </h2>
+                <div class="controls mb-3 text-sm text-gray-600">
+                    <label class="mr-3">
+                        <input type="checkbox" id="commaCheck" name="commaCheck" checked class="mr-1" />
+                        Comma
+                    </label>
+                    <label class="mr-2">
+                        <input type="radio" id="singleQuote" name="quoteGroup" checked class="mr-1" />
+                        Single
+                    </label>
+                    <label class="mr-2">
+                        <input type="radio" id="doubleQuote" name="quoteGroup" class="mr-1" />
+                        Double
+                    </label>
+                    <label>
+                        <input type="radio" id="noneQuote" name="quoteGroup" class="mr-1" />
+                        None
+                    </label>
+                </div>
+                <button id="copyOutputButton" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+                    Copy
+                </button>
+                <div class="textarea-wrapper">
+                    <textarea name="taNew" id="taNew" cols="70" rows="10" class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-400 focus:border-transparent"></textarea>
+                </div>
             </div>
         
             <div class="item3">
-                <h1>CUSTOM</h1>
-                <p id="pblock"><!--<label for="pblock">선택 👉 </label>-->
-                    <input type="radio" id="username" name="group2" value="대문자" checked> <label for="username">Upper case</label>
-                    <input type="radio" id="userid" name="group2" value="소문자"> <label for="userid">Lower case</label>
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">CUSTOM</h2>
+                <p id="pblockCustom" class="controls mb-3 text-sm text-gray-600">
+                    <input type="radio" id="username" name="group2" value="대문자" checked class="mr-1"> <label for="username" class="mr-3">Upper case</label>
+                    <input type="radio" id="userid" name="group2" value="소문자" class="mr-1"> <label for="userid">Lower case</label>
                 </p>
-                <br><br>
-                <textarea name="taCus" id="taCus" cols="70" rows="20"></textarea>
+                <button id="copyCustomButton" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75">
+                    Copy
+                </button>
+                <div class="textarea-wrapper">
+                    <textarea name="taCus" id="taCus" cols="70" rows="10" class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-400 focus:border-transparent"></textarea>
+                </div>
             </div>
         </div>
         
@@ -87,6 +150,7 @@
 </body>
 <script type="text/javascript">
     let quoteType = '\'';
+    let commaType = true;
     let origin = document.querySelector('#taOrigin'); //INPUT textarea
     let newOutput = document.querySelector('#taNew'); //OUTPUT textarea
     let newCustom = document.querySelector('#taCus'); //CUSTOM textarea
@@ -96,6 +160,7 @@
     let reset = document.querySelector('#pblock > button'); //리셋버튼
     let outputCount = document.querySelector('#pCount'); //OUTPUT 개수
     let pikalabel = document.querySelector('#lblPika');
+    let commaCheck = document.querySelector('#commaCheck');
 
     let test = document.querySelector('#test');
 
@@ -131,12 +196,28 @@
         x.addEventListener('change', function(){
             if(radios3[0].checked){
                 quoteType = '\'';
-            } else {
+            } else if (radios3[1].checked){
                 quoteType = '\"';
+            } else {
+                quoteType = '';
             }
             changeQuote(origin.value);
         })
     );
+
+    commaCheck.addEventListener('change', function(){
+        if(commaCheck.checked) {
+            commaType = true;
+        } else {
+            commaType = false;
+        }
+        changeQuote(origin.value);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setupClipboardCopy('copyOutputButton', 'taNew');
+        setupClipboardCopy('copyCustomButton', 'taCus');
+    });
 
     //예제 세팅
     function changePlaceholer(){
@@ -165,6 +246,12 @@
             
             newOutput.value = _.trimEnd(newStr);//.replace(/\n+$/,''); //마지막 엔터제거
 
+            if(!commaType){
+                newOutput.value = newOutput.value.replace(/,/g, '');
+            }
+
+            // newOutput.scrollTop = newOutput.scrollHeight; 
+
             outputCount.innerText = '💁‍♀️' + beCool(split.length);
             customQuery(newOutput.value);
         } else{
@@ -189,6 +276,8 @@
 // )`;
 
         newCustom.value = username.checked? _.trimEnd(rst).toUpperCase() : _.trimEnd(rst).toLowerCase();
+
+        // newCustom.scrollTop = newCustom.scrollHeight; 
     }
 
     //입력값 멋있게 반환
@@ -226,6 +315,72 @@
             newOutput.value = '';
             newCustom.value = '';
             outputCount.innerText = '';
+    }
+
+    //클립보드 복사
+    function setupClipboardCopy(buttonId, textareaId) {
+        const copyButton = document.getElementById(buttonId);
+        const textElement = document.getElementById(textareaId);
+
+        if (!copyButton || !textElement) {
+            console.warn(`클립보드 요소를 찾을 수 없습니다: ${buttonId} 또는 ${textareaId}`);
+            return;
+        }
+
+        const originalButtonText = copyButton.textContent;
+        const originalButtonClasses = [...copyButton.classList];
+
+        copyButton.addEventListener('click', async () => {
+            const textToCopy = textElement.value;
+
+            // 현재 버튼의 기본 배경색 가져오기 (좀 더 유연하게)
+            let currentBgClass = '';
+            let currentHoverBgClass = '';
+            originalButtonClasses.forEach(cls => {
+                if(cls.startsWith('bg-') && !cls.includes('hover:')) currentBgClass = cls;
+                if(cls.startsWith('hover:bg-')) currentHoverBgClass = cls;
+            });
+
+
+            if (!textToCopy) {
+                copyButton.textContent = 'Empty!';
+                copyButton.classList.remove(currentBgClass, currentHoverBgClass, 'bg-green-500', 'hover:bg-green-600');
+                copyButton.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                setTimeout(() => {
+                    copyButton.textContent = originalButtonText;
+                    copyButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    if(currentBgClass) copyButton.classList.add(currentBgClass);
+                    if(currentHoverBgClass) copyButton.classList.add(currentHoverBgClass);
+                }, 1000);
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                copyButton.textContent = 'Copied!';
+                copyButton.classList.remove(currentBgClass, currentHoverBgClass);
+                copyButton.classList.add('bg-green-500', 'hover:bg-green-600'); // 성공 시 초록색
+
+                setTimeout(() => {
+                    copyButton.textContent = originalButtonText;
+                    copyButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    if(currentBgClass) copyButton.classList.add(currentBgClass);
+                    if(currentHoverBgClass) copyButton.classList.add(currentHoverBgClass);
+                }, 1000);
+
+            } catch (err) {
+                console.error('클립보드 복사 실패:', err);
+                copyButton.textContent = 'Failed!';
+                copyButton.classList.remove(currentBgClass, currentHoverBgClass, 'bg-green-500', 'hover:bg-green-600');
+                copyButton.classList.add('bg-red-500', 'hover:bg-red-600'); // 실패 시 빨간색
+                 setTimeout(() => {
+                    copyButton.textContent = originalButtonText;
+                    copyButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    if(currentBgClass) copyButton.classList.add(currentBgClass);
+                    if(currentHoverBgClass) copyButton.classList.add(currentHoverBgClass);
+                }, 1000);
+            }
+        });
     }
 
     var canvas = document.getElementById('canvas');
