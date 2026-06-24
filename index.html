@@ -1,6 +1,6 @@
 <!--2023.01.30 Hannim-->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,624 +11,69 @@
     <meta property="og:description" content="피카츄가 들판을 뛰어다닙니다" />
     <meta property="og:site_name" content="따옴표 마법사" />
     <meta property="og:locale" content="ko_KR" />
-    <script src="lodash.min.js"></script>
-    <link href="tailwind.min.css" rel="stylesheet">
     <title>QuoteMaker</title>
-    <style>
-        h1,p{
-            display: inline;
-        }
-
-        .container{
-            width: 100vw;
-            height: 100vh;
-            display: grid;
-            grid-template-rows: auto 1fr auto; /* pikaCanva, item1, itemContainer 수직 정렬 */
-            gap: 1rem; /* 섹션 간 간격 */
-            padding: 1rem; /* 전체 컨테이너 패딩 */
-            box-sizing: border-box;
-        }
-
-        .pikaCanva{
-            width: 100%;
-            height: 100%;
-        }
-
-        .item1{
-            width: 100%;
-            background-color: #f9f9f9;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .itemContainer{
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .item2, .item3 {
-            flex: 1;
-            min-width: 300px;
-            background-color: #f9f9f9;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .textarea-wrapper {
-            position: relative;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .textarea-wrapper textarea {
-            flex-grow: 1;
-            width: 100%;
-        }
-        
-        button {
-            cursor: pointer;
-        }
-
-        .controls label { 
-            display: inline-flex;
-            align-items: center;
-            margin-right: 0.75rem;
-        }
-        .controls input[type="radio"], .controls input[type="checkbox"] {
-            margin-right: 0.25rem;
-        }
-
-    </style>
+    <link href="tailwind.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="pikaCanva">
+    <main class="container">
+        <!-- 피카츄가 뛰노는 캔버스 -->
+        <section class="pikaCanva">
             <canvas id="canvas"></canvas>
-        </div>
-        <div class="item1">
-            <h1 class="text-xl font-semibold text-gray-700">INPUT</h1>
-            <p id="pblock"><!--<label for="pblock">구분자 선택 👉 </label>-->
-                    <input type="radio" id="enter" name="group" value="엔터" checked> <label for="enter">엔터</label>
-                    <input type="radio" id="comma" name="group" value="콤마"> <label for="comma">콤마</label>
-                    <button id="resetButton" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors">리셋</button>
-                    <label id="lblPika"></label>
-            </p>
-            <br><br>
-            <textarea name="taOrigin" id="taOrigin" cols="50" rows="9"></textarea>
-        </div>
+        </section>
 
-        <div class="itemContainer">
-            <div class="item2">
-                <h2 class="text-xl font-semibold text-gray-700 mb-2 flex items-baseline">
+        <!-- INPUT -->
+        <section class="card item1">
+            <div class="input-head">
+                <h1 class="text-xl font-semibold text-gray-700">INPUT</h1>
+                <span class="controls text-sm text-gray-600">
+                    <label><input type="radio" id="enter" name="group" value="엔터" checked> 엔터</label>
+                    <label><input type="radio" id="comma" name="group" value="콤마"> 콤마</label>
+                </span>
+                <button id="resetButton" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors">리셋</button>
+                <label id="lblPika"></label>
+            </div>
+            <textarea name="taOrigin" id="taOrigin" rows="9"></textarea>
+        </section>
+
+        <!-- OUTPUT / CUSTOM -->
+        <section class="itemContainer">
+            <div class="card item2">
+                <h2 class="text-xl font-semibold text-gray-700 flex items-baseline">
                     OUTPUT
                     <span id="pCount" class="text-sm text-purple-600 font-semibold ml-2"></span>
                 </h2>
-                <div class="controls mb-3 text-sm text-gray-600">
-                    <label class="mr-3">
-                        <input type="checkbox" id="commaCheck" name="commaCheck" checked class="mr-1" />
-                        Comma
-                    </label>
-                    <label class="mr-2">
-                        <input type="radio" id="singleQuote" name="quoteGroup" checked class="mr-1" />
-                        Single
-                    </label>
-                    <label class="mr-2">
-                        <input type="radio" id="doubleQuote" name="quoteGroup" class="mr-1" />
-                        Double
-                    </label>
-                    <label>
-                        <input type="radio" id="noneQuote" name="quoteGroup" class="mr-1" />
-                        None
-                    </label>
+                <div class="controls text-sm text-gray-600">
+                    <label><input type="checkbox" id="commaCheck" name="commaCheck" checked> Comma</label>
+                    <label><input type="radio" id="singleQuote" name="quoteGroup" checked> Single</label>
+                    <label><input type="radio" id="doubleQuote" name="quoteGroup"> Double</label>
+                    <label><input type="radio" id="noneQuote" name="quoteGroup"> None</label>
                 </div>
-                <button id="copyOutputButton" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+                <button id="copyOutputButton" class="action-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
                     Copy
                 </button>
                 <div class="textarea-wrapper">
-                    <textarea name="taNew" id="taNew" cols="70" rows="10" class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-400 focus:border-transparent"></textarea>
+                    <textarea name="taNew" id="taNew" rows="10"></textarea>
                 </div>
             </div>
-        
-            <div class="item3">
-                <h2 class="text-xl font-semibold text-gray-700 mb-2">CUSTOM</h2>
-                <p id="pblockCustom" class="controls mb-3 text-sm text-gray-600">
-                    <input type="radio" id="username" name="group2" value="대문자" checked class="mr-1"> <label for="username" class="mr-3">Upper case</label>
-                    <input type="radio" id="userid" name="group2" value="소문자" class="mr-1"> <label for="userid">Lower case</label>
-                </p>
-                <button id="copyCustomButton" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75">
-                    Copy
-                </button>
-                <div class="textarea-wrapper">
-                    <textarea name="taCus" id="taCus" cols="70" rows="10" class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-400 focus:border-transparent"></textarea>
-                </div>
-            </div>
-        </div>
-        
-    </div>
 
+            <div class="card item3">
+                <h2 class="text-xl font-semibold text-gray-700">CUSTOM</h2>
+                <div class="controls text-sm text-gray-600">
+                    <label><input type="radio" id="username" name="group2" value="대문자" checked> Upper case</label>
+                    <label><input type="radio" id="userid" name="group2" value="소문자"> Lower case</label>
+                </div>
+                <button id="copyCustomButton" class="action-btn bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-3 rounded-md text-xs shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75">
+                    Copy
+                </button>
+                <div class="textarea-wrapper">
+                    <textarea name="taCus" id="taCus" rows="10"></textarea>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/quote.js"></script>
+    <script src="js/pikachu.js"></script>
 </body>
-<script type="text/javascript">
-    let quoteType = '\'';
-    let commaType = true;
-    let origin = document.querySelector('#taOrigin'); //INPUT textarea
-    let newOutput = document.querySelector('#taNew'); //OUTPUT textarea
-    let newCustom = document.querySelector('#taCus'); //CUSTOM textarea
-    let radios = document.querySelectorAll('input[type=radio][name="group"]'); //구분자 선택 라디오
-    let radios2 = document.querySelectorAll('input[type=radio][name="group2"]'); //선택 라디오
-    let radios3 = document.querySelectorAll('input[type=radio][name="quoteGroup"]'); //따옴표 종류 선택 라디오
-    let reset = document.querySelector('#pblock > button'); //리셋버튼
-    let outputCount = document.querySelector('#pCount'); //OUTPUT 개수
-    let pikalabel = document.querySelector('#lblPika');
-    let commaCheck = document.querySelector('#commaCheck');
-
-    let test = document.querySelector('#test');
-
-    changePlaceholer(); //플레이스홀더 세팅
-
-    origin.addEventListener('input', function(){
-        changeQuote(origin.value);
-    });
-
-    reset.addEventListener('click', function(){
-        deleteAll();
-
-        if(pikas){
-            //pika.jumpingDecision();
-            //pikas = [new Pikachu()];
-            _.map(pikas, pika => pika.jumpingDecision());
-        }
-    });
-
-    _.map(radios, x => 
-        x.addEventListener('change', function(){
-            changeQuote(origin.value);
-        })
-    );
-
-    _.map(radios2, x => 
-        x.addEventListener('change', function(){
-            customQuery(newOutput.value);
-        })
-    );
-
-    _.map(radios3, x => 
-        x.addEventListener('change', function(){
-            if(radios3[0].checked){
-                quoteType = '\'';
-            } else if (radios3[1].checked){
-                quoteType = '\"';
-            } else {
-                quoteType = '';
-            }
-            changeQuote(origin.value);
-        })
-    );
-
-    commaCheck.addEventListener('change', function(){
-        if(commaCheck.checked) {
-            commaType = true;
-        } else {
-            commaType = false;
-        }
-        changeQuote(origin.value);
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        setupClipboardCopy('copyOutputButton', 'taNew');
-        setupClipboardCopy('copyCustomButton', 'taCus');
-    });
-
-    //예제 세팅
-    function changePlaceholer(){
-        if(radios[0].checked){
-            origin.placeholder = '엔터(New line)를 구분자로 값을 분리합니다\r\n\nvalue1\r\nvalue2\r\nvalue3\r\n....\r\n...\r\n..\r\n.';
-        } else{
-            origin.placeholder = '콤마를 구분자로 값을 분리합니다\r\n\n👉 value1, value2, value3...';
-        }
-    }
-
-    //작은 따옴표랑 콤마 붙이기
-    function changeQuote(val){
-        changePlaceholer();
-
-        if(val){
-            let str = _.replace(val, / /g, '');
-            let splitter = ',';
-            if(document.querySelector('#enter').checked){
-                splitter = '\n';
-            } else{
-                str = _.replace(str, /(?:\r\n|\r|\n)/g, '');
-            }
-
-            let split  = _.compact(_.split(str, splitter));
-            let newStr = _.map(split, x => quoteType + x + quoteType+'\n');
-            
-            newOutput.value = _.trimEnd(newStr);//.replace(/\n+$/,''); //마지막 엔터제거
-
-            if(!commaType){
-                newOutput.value = newOutput.value.replace(/,/g, '');
-            }
-
-            // newOutput.scrollTop = newOutput.scrollHeight; 
-
-            outputCount.innerText = '💁‍♀️' + beCool(split.length);
-            customQuery(newOutput.value);
-        } else{
-            deleteAll();
-        }
-    }
-
-    //쿼리 만들기
-    function customQuery(val){
-        if(!val)return;
-
-        let username = document.querySelector('#username');
-        let cond = username.checked?'UserName':'UserId';
-        let split = _.split(val, '\n');
-        let rst = _.map(split, (x, y) => (_.eq(y, 0)?'':'') + _.replace(x, ',', '') + '\n'); //0번째에만 탭을 넣고 시작함
-//         let query = 
-// `SELECT
-// \t*
-// FROM HBEdu_Passport.dbo.uIv_Statistics_User AS us WITH(NOLOCK)
-// WHERE ${cond} IN (
-// ${_.trimEnd(rst)}
-// )`;
-
-        newCustom.value = username.checked? _.trimEnd(rst).toUpperCase() : _.trimEnd(rst).toLowerCase();
-
-        if(!commaType){
-            newCustom.value = newCustom.value.replace(/,/g, '');
-        }        
-        // newCustom.scrollTop = newCustom.scrollHeight; 
-    }
-
-    //입력값 멋있게 반환
-    function beCool(val) {
-        if (val === undefined 
-            || val === null 
-            || val === '') {
-            return val;
-        }
-
-        if (typeof val !== 'string') {
-            val = val.toString();
-        }
-
-        if (val === '10') {
-            return '🔟';
-        }
-
-        return val
-        .replace(/0/g, '0️⃣')
-        .replace(/1/g, '1️⃣')
-        .replace(/2/g, '2️⃣')
-        .replace(/3/g, '3️⃣')
-        .replace(/4/g, '4️⃣')
-        .replace(/5/g, '5️⃣')
-        .replace(/6/g, '6️⃣')
-        .replace(/7/g, '7️⃣')
-        .replace(/8/g, '8️⃣')
-        .replace(/9/g, '9️⃣');
-  }
-
-    //휴지통
-    function deleteAll(){
-            origin.value = '';
-            newOutput.value = '';
-            newCustom.value = '';
-            outputCount.innerText = '';
-    }
-
-    //클립보드 복사
-    function setupClipboardCopy(buttonId, textareaId) {
-        const copyButton = document.getElementById(buttonId);
-        const textElement = document.getElementById(textareaId);
-
-        if (!copyButton || !textElement) {
-            console.warn(`클립보드 요소를 찾을 수 없습니다: ${buttonId} 또는 ${textareaId}`);
-            return;
-        }
-
-        const originalButtonText = copyButton.textContent;
-        const originalButtonClasses = [...copyButton.classList];
-
-        copyButton.addEventListener('click', async () => {
-            const textToCopy = textElement.value;
-
-            // 현재 버튼의 기본 배경색 가져오기 (좀 더 유연하게)
-            let currentBgClass = '';
-            let currentHoverBgClass = '';
-            originalButtonClasses.forEach(cls => {
-                if(cls.startsWith('bg-') && !cls.includes('hover:')) currentBgClass = cls;
-                if(cls.startsWith('hover:bg-')) currentHoverBgClass = cls;
-            });
-
-
-            if (!textToCopy) {
-                copyButton.textContent = 'Empty!';
-                copyButton.classList.remove(currentBgClass, currentHoverBgClass, 'bg-green-500', 'hover:bg-green-600');
-                copyButton.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-                setTimeout(() => {
-                    copyButton.textContent = originalButtonText;
-                    copyButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                    if(currentBgClass) copyButton.classList.add(currentBgClass);
-                    if(currentHoverBgClass) copyButton.classList.add(currentHoverBgClass);
-                }, 1000);
-                return;
-            }
-
-            try {
-                await navigator.clipboard.writeText(textToCopy);
-                copyButton.textContent = 'Copied!';
-                copyButton.classList.remove(currentBgClass, currentHoverBgClass);
-                copyButton.classList.add('bg-green-500', 'hover:bg-green-600'); // 성공 시 초록색
-
-                setTimeout(() => {
-                    copyButton.textContent = originalButtonText;
-                    copyButton.classList.remove('bg-green-500', 'hover:bg-green-600');
-                    if(currentBgClass) copyButton.classList.add(currentBgClass);
-                    if(currentHoverBgClass) copyButton.classList.add(currentHoverBgClass);
-                }, 1000);
-
-            } catch (err) {
-                console.error('클립보드 복사 실패:', err);
-                copyButton.textContent = 'Failed!';
-                copyButton.classList.remove(currentBgClass, currentHoverBgClass, 'bg-green-500', 'hover:bg-green-600');
-                copyButton.classList.add('bg-red-500', 'hover:bg-red-600'); // 실패 시 빨간색
-                 setTimeout(() => {
-                    copyButton.textContent = originalButtonText;
-                    copyButton.classList.remove('bg-red-500', 'hover:bg-red-600');
-                    if(currentBgClass) copyButton.classList.add(currentBgClass);
-                    if(currentHoverBgClass) copyButton.classList.add(currentHoverBgClass);
-                }, 1000);
-            }
-        });
-    }
-
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-    let arrayBuffer;
-    const layer1 = new Image();
-    const layer2 = new Image();
-    layer1.src = 'back.jpg';
-    layer2.src = 'back.jpg';
-
-    ctx.drawImage(layer1, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(layer2, canvas.width, 0, canvas.width, canvas.height);
-
-    let layer1X = 0;
-    let layer2x = canvas.width;
-    const layer1Speed = 1;
-    const layer2Speed = 1;
-
-    const img = new Image();
-
-    var timer = 0; //타이머
-    
-    fetch('https://raw.githubusercontent.com/jeanguyomarch/pikalogy/master/images/pika_01.png')
-    .then(response => response.blob())
-    .then(blob => blob.arrayBuffer())
-    .then(arrayBuffer => {
-        const newBlob = new Blob([arrayBuffer], { type: 'image/png' });
-        const url = URL.createObjectURL(newBlob);
-        img.src = url;
-        //console.log(url);
-    })
-    .catch(error => {
-        img.src = 'https://raw.githubusercontent.com/jeanguyomarch/pikalogy/master/images/pika_01.png'; 
-    });
-
-    
-    class Pikachu{
-        constructor(){
-            this.x = 0; //피카츄 x좌표
-            this.y = 80; //피카츄 y좌표
-            this.width = 30; //피카츄 길이
-            this.height = 30; //피카츄 높이
-            this.speed = 1; //속도
-            this.angle = 0; //회전각
-            this.lucky = false; //돌아이
-            this.superLucky = false; //상돌아이
-
-            this.jumpPoint = 80; //점프할 시간
-            this.jumpTimer = 0; //점프중 타이머
-            this.jumpSwitch = false; //점프할지말지
-            this.IsJumping = false; //점프중인지
-
-            this.hero = false;
-            this.name = '조상님';
-        }
-
-        //그려라
-        draw(){
-            img.onload = () => {
-                ctx.drawImage(img, this.x - this.width, this.y);
-            }
-
-            ctx.font = 'bold 13px 맑은고딕';
-            
-            if(this.hero){
-                //ctx.fillRect(this.x - this.width, this.y, 30, 30);
-                ctx.fillText('막둥이', this.x - this.width + 5, this.y - 3);
-            } else{
-                if(_.size(this.name) > 0) {
-                    ctx.fillText(this.name, this.x - this.width, this.y - 3);
-                }
-            }
-            
-            ctx.drawImage(img, this.x - this.width, this.y);
-            
-        }
-
-        //돌아라
-        rotate(){
-            if(this.superLucky){
-                this.angle++; //빠른회전
-            } else {
-                this.angle+= Math.PI / 18; //느린회전
-            }
-            
-            ctx.save();
-            ctx.translate(this.x - this.width, this.y);
-            ctx.rotate(this.angle);
-            ctx.drawImage(img, -img.width/2, -img.height/2);
-            ctx.restore();   
-
-            ctx.font = 'bold 13px 맑은고딕';
-            if(this.hero){
-                ctx.fillText('막둥이', this.x - this.width, this.y-20);
-            } else{
-                if(_.size(this.name) > 0) {
-                    ctx.fillText(this.name, this.x - this.width, this.y-20);
-                }
-            }
-        }
-
-        //걸어라
-        forward(){
-            this.x+=this.speed;
-        }
-
-        //뛰어라
-        jumpUp(val){
-            this.y-=val;
-        }
-
-        //내려와라
-        jumpDown(val){
-            this.y+=val;
-        }
-
-        //점프할 결심
-        jumpingDecision(){
-            if(!this.IsJumping){
-                this.jumpSwitch = true;
-                this.jumpPoint = _.random(80, 500);
-                this.speed = _.random(1, 4);
-                this.lucky = _.random(1,10) % 2 == 0;
-                this.superLucky = _.random(1, 1000) % 10 == 0;
-
-                pikalabel.innerText = '⚡'; //백만볼트
-                //console.log('⚡');
-            }
-        }
-    }
-
-    //피카츄 클릭
-    // canvas.addEventListener('click', function(e){
-    //     const x = e.offsetX;
-    //     const y = e.offsetY;
-    //     const pixel = ctx.getImageData(x, y, 1, 1);
-    //     //console.log(pixel.data[3]);
-    //     if(pixel.data[3] != 0){
-    //         //console.log('image');
-    //         pika.jumpingDecision();
-    //     }
-    // });
-    
-    const randomHexColor = () => {
-                    const red = _.padStart(_.random(0, 255).toString(16), 2, '0');
-                    const green = _.padStart(_.random(0, 255).toString(16), 2, '0');
-                    const blue = _.padStart(_.random(0, 255).toString(16), 2, '0');
-                    return `#${red + green + blue}`;
-    };
-
-    //피카츄 등장
-    var pikas = [new Pikachu()]; //new Pikachu();
-
-    //피카츄 출동
-    function animate(){
-        requestAnimationFrame(animate);
-        timer++;
-        
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-        
-        layer1X -= layer1Speed;
-        if (layer1X <= -canvas.width) {
-            layer1X = canvas.width;
-        }
-
-        layer2x -= layer2Speed;
-        if (layer2x <= -canvas.width) {
-            layer2x = canvas.width;
-        }
-
-        // console.log(layer1X, layer2x);
-        ctx.drawImage(layer1, layer1X, 0, canvas.width, canvas.height);
-        ctx.drawImage(layer2, layer2x, 0, canvas.width, canvas.height);
-
-        if(_.findLast(pikas).superLucky) {
-            let newPika = new Pikachu();
-            newPika.hero = true;
-            pikas[_.size(pikas) - 1].hero = false;
-            newPika.name = '';
-            pikas = _.concat(pikas, newPika);
-        }
-        _.map(pikas, (pika, idx) => {
-
-        
-            if(pika.x > canvas.width){
-                pikas[idx].x = 0 - pika.width;
-            }
-
-            if(timer % pika.jumpPoint == 0){
-                // console.log('피카피카', timer);
-                pika.jumpingDecision();
-            }
-
-            if(pika.jumpSwitch){
-                if(pika.y >= 10){
-                    pika.IsJumping = true;
-                    pika.jumpUp(3);
-                    pika.jumpTimer++;
-                    
-                    // console.log('점프중',pika.y, jumpTimer);
-                }
-            }
-
-            if(pika.IsJumping && pika.jumpTimer >= 17 ){
-                pika.jumpSwitch = false;
-                // console.log('점프끝', pika.y, jumpSwitch);
-
-                if(pika.y < 80){
-                    pika.jumpDown(3);
-                } else{
-                    pika.IsJumping = false;
-                    pika.jumpTimer = 0;
-                    pikalabel.innerText = '';
-                }
-            }
-
-            //앞으로 가기
-            pika.forward();
-
-            //뒤뚱뒤뚱 스텝밟기
-            if(!pika.jumpSwitch && !pika.IsJumping && timer % 10 == 1){
-                if(pika.y <= 80){
-                    pika.jumpDown(2);
-                } else{
-                    pika.jumpUp(2);
-                }
-            }
-
-            //피카츄 운 좋을 때만 돌면서 점프함
-            if(!pika.IsJumping || !pika.lucky){
-                pika.draw();
-            } else{
-                pika.rotate();
-            }
-
-        });
-    }
-
-    animate();
-</script>
 </html>
