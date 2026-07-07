@@ -73,31 +73,7 @@
         </section>
     </main>
 
-    <!-- 중앙 이동 배너. 되돌리려면 이 style+a 블록만 지우면 된다. -->
-    <style>
-        @keyframes pikaBounce { 0%,100%{transform:translate(-50%,-50%)} 50%{transform:translate(-50%,-58%)} }
-        #pikaBanner {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
-            z-index: 10000; text-decoration: none;
-            padding: 22px 40px; border-radius: 999px;
-            background: linear-gradient(135deg,#ffe14d,#ffb703);
-            color: #4a3200; font-weight: 800; font-size: clamp(20px,4vw,34px);
-            font-family: '맑은고딕','Malgun Gothic',sans-serif;
-            box-shadow: 0 10px 28px rgba(0,0,0,.25); border: 4px solid #fff;
-            white-space: nowrap; animation: pikaBounce 1.6s ease-in-out infinite;
-            transition: transform .15s ease, box-shadow .15s ease;
-        }
-        #pikaBanner:hover {
-            animation: none; transform: translate(-50%,-50%) scale(1.08);
-            box-shadow: 0 14px 34px rgba(0,0,0,.32);
-        }
-    </style>
-    <a id="pikaBanner" href="https://hannimman.github.io/pika/#/quote">https://hannimman.github.io/pika/#/quote</a>
-
-    <!-- 따옴표/변환 기능 잠시 끔. 되돌리려면 아래 주석 해제 -->
-    <!-- <script src="js/quote.js"></script> -->
+    <script src="js/quote.js"></script>
     <script src="js/pikachu.js"></script>
-    <!-- 되돌리려면 아래 rain 스크립트 한 줄 제거 + pikachu.js 의 animate() 주석 해제 -->
-    <script src="js/rain.js"></script>
 </body>
 </html>
